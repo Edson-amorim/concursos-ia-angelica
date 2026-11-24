@@ -37,6 +37,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Previne falhas continuas capturando excecoes nao tratadas
+        Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
+            android.util.Log.e("ConcursosAngelica", "Erro nao tratado prevenido: ${throwable.message}", throwable)
+        }
+
         // Inicializacao do Banco de Dados Room e Repositorios
         val database = AppDatabase.getInstance(applicationContext)
         val geminiClient = GeminiClient(apiKey = "") // Pode ser configurada via buildConfig ou Settings

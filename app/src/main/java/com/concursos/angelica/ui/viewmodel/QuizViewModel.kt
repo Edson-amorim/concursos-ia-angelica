@@ -58,12 +58,16 @@ class QuizViewModel(
 
     fun refreshAvailableFilters(disciplina: String? = null) {
         viewModelScope.launch {
-            val options = repository.getAvailableFilters(disciplina)
-            if (options.bancas.isNotEmpty()) {
-                _filterOptions.value = options
+            try {
+                val options = repository.getAvailableFilters(disciplina)
+                if (options.bancas.isNotEmpty()) {
+                    _filterOptions.value = options
+                }
+                val count = repository.countQuestions(_currentFilters.value)
+                _matchingQuestionsCount.value = count
+            } catch (e: Exception) {
+                // Previne crash caso o banco ainda esteja inicializando
             }
-            val count = repository.countQuestions(_currentFilters.value)
-            _matchingQuestionsCount.value = count
         }
     }
 
@@ -86,19 +90,24 @@ class QuizViewModel(
         viewModelScope.launch {
             _isGeneratingQuestions.value = true
             _updateMessage.value = "A Angélica está formulando $quantidade novas questões inéditas..."
-            val result = repository.generateAndInsertAiQuestions(
-                banca = banca,
-                disciplina = disciplina,
-                assunto = assunto,
-                quantidade = quantidade
-            )
-            result.onSuccess { qtd ->
-                _updateMessage.value = "Sucesso! $qtd novas questões foram geradas pela IA e inseridas no banco de dados."
-                loadQuestions()
-            }.onFailure { err ->
-                _updateMessage.value = "Falha ao gerar questões com IA: ${err.localizedMessage}"
+            try {
+                val result = repository.generateAndInsertAiQuestions(
+                    banca = banca,
+                    disciplina = disciplina,
+                    assunto = assunto,
+                    quantidade = quantidade
+                )
+                result.onSuccess { qtd ->
+                    _updateMessage.value = "Sucesso! $qtd novas questões foram geradas pela IA e inseridas no banco de dados."
+                    loadQuestions()
+                }.onFailure { err ->
+                    _updateMessage.value = "Falha ao gerar questões com IA: ${err.localizedMessage}"
+                }
+            } catch (e: Exception) {
+                _updateMessage.value = "Erro inesperado: ${e.localizedMessage}"
+            } finally {
+                _isGeneratingQuestions.value = false
             }
-            _isGeneratingQuestions.value = false
         }
     }
 
@@ -106,12 +115,16 @@ class QuizViewModel(
         _currentFilters.value = newFilters
         loadQuestions()
         viewModelScope.launch {
-            val count = repository.countQuestions(newFilters)
-            _matchingQuestionsCount.value = count
-            _updateMessage.value = if (count > 0) {
-                "Filtro aplicado! $count questões encontradas."
-            } else {
-                "Nenhuma questão encontrada com essa combinação de filtros. Tente flexibilizar algum critério."
+            try {
+                val count = repository.countQuestions(newFilters)
+                _matchingQuestionsCount.value = count
+                _updateMessage.value = if (count > 0) {
+                    "Filtro aplicado! $count questões encontradas."
+                } else {
+                    "Nenhuma questão encontrada com essa combinação de filtros. Tente flexibilizar algum critério."
+                }
+            } catch (e: Exception) {
+                _updateMessage.value = "Erro ao buscar questões com este filtro."
             }
         }
     }
@@ -122,16 +135,24 @@ class QuizViewModel(
 
     fun loadQuestions() {
         viewModelScope.launch {
-            repository.getQuestions(_currentFilters.value).collect { list ->
-                _questions.value = list
-                _currentIndex.value = 0
+            try {
+                repository.getQuestions(_currentFilters.value).collect { list ->
+                    _questions.value = list
+                    _currentIndex.value = 0
+                }
+            } catch (e: Exception) {
+                _questions.value = emptyList()
             }
         }
     }
 
     fun submitAnswer(questaoId: Int, resposta: String, acertou: Boolean, tempoSegundos: Int) {
         viewModelScope.launch {
-            repository.saveAnswer(questaoId, resposta, acertou, tempoSegundos)
+            try {
+                repository.saveAnswer(questaoId, resposta, acertou, tempoSegundos)
+            } catch (e: Exception) {
+                // Erro ignorado graciosamente para não travar a UI
+            }
         }
     }
 

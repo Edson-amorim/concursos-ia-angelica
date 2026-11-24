@@ -25,7 +25,11 @@ class PerformanceViewModel(
 
     init {
         viewModelScope.launch {
-            _tempoMedio.value = userProgressDao.getAverageTimeSeconds() ?: 0.0
+            try {
+                _tempoMedio.value = userProgressDao.getAverageTimeSeconds() ?: 0.0
+            } catch (e: Exception) {
+                _tempoMedio.value = 0.0
+            }
         }
     }
 }
