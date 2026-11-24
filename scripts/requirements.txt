@@ -1,0 +1,4 @@
+# Dependencias opcionais para extracao web e manipulacao de dados
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+pandas>=2.0.0
