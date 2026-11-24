@@ -3,7 +3,7 @@
 Aplicativo Android nativo em **Kotlin + Jetpack Compose** projetado para preparação em concursos públicos com:
 - **Banco de Dados de 10.000 questões** completas e comentadas.
 - **Banco de Dados com 10.210 Questões**: Incluindo mais de **3.000 questões do ano de 2026** com as jurisprudências e inovações legislativas mais recentes.
-- **Filtros avançados**: Bancas, Modalidade, Disciplinas, **Assuntos/Tópicos**, Área de Interesse e Anos (de 2018 até 2026).
+- **Filtros Avançados com Múltipla Seleção**: O estudante pode marcar várias opções simultâneas em cada categoria (ex: Direito Constitucional + Direito Administrativo; FGV + Cebraspe; 2026 + 2025).
 - **Atualização Contínua com IA**: Mecanismo para a IA Angélica gerar questões inéditas com gabarito justificado e gravar diretamente no banco de dados SQLite / Room.
 - **100% Compatível com Leitores de Tela (TalkBack)** e normas de acessibilidade digital.
 - **Mentora de Inteligência Artificial "Angélica"**: avalia o desempenho, mapeia pontos fracos e recomenda estudos e cronogramas estratégicos.

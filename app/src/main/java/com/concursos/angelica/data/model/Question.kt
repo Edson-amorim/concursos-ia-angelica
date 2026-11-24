@@ -25,10 +25,14 @@ data class Alternativa(
 )
 
 data class FilterCriteria(
-    val banca: String? = null,
-    val modalidade: String? = null,
-    val disciplina: String? = null,
-    val assunto: String? = null,
-    val area: String? = null,
-    val ano: Int? = null
-)
+    val bancas: Set<String> = emptySet(),
+    val modalidades: Set<String> = emptySet(),
+    val disciplinas: Set<String> = emptySet(),
+    val assuntos: Set<String> = emptySet(),
+    val areas: Set<String> = emptySet(),
+    val anos: Set<Int> = emptySet()
+) {
+    val isEmpty: Boolean
+        get() = bancas.isEmpty() && modalidades.isEmpty() && disciplinas.isEmpty() &&
+                assuntos.isEmpty() && areas.isEmpty() && anos.isEmpty()
+}

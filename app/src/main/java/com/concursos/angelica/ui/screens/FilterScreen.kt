@@ -22,7 +22,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.concursos.angelica.data.model.FilterCriteria
 import com.concursos.angelica.data.repository.FilterOptions
-import com.concursos.angelica.ui.components.FilterChipGroup
+import com.concursos.angelica.ui.components.MultiSelectFilterChipGroup
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,12 +37,16 @@ fun FilterScreen(
     onNavigateToQuiz: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedBanca by remember(currentFilters) { mutableStateOf(currentFilters.banca) }
-    var selectedModalidade by remember(currentFilters) { mutableStateOf(currentFilters.modalidade) }
-    var selectedDisciplina by remember(currentFilters) { mutableStateOf(currentFilters.disciplina) }
-    var selectedAssunto by remember(currentFilters) { mutableStateOf(currentFilters.assunto) }
-    var selectedArea by remember(currentFilters) { mutableStateOf(currentFilters.area) }
-    var selectedAno by remember(currentFilters) { mutableStateOf(currentFilters.ano) }
+    var selectedBancas by remember(currentFilters) { mutableStateOf(currentFilters.bancas) }
+    var selectedModalidades by remember(currentFilters) { mutableStateOf(currentFilters.modalidades) }
+    var selectedDisciplinas by remember(currentFilters) { mutableStateOf(currentFilters.disciplinas) }
+    var selectedAssuntos by remember(currentFilters) { mutableStateOf(currentFilters.assuntos) }
+    var selectedAreas by remember(currentFilters) { mutableStateOf(currentFilters.areas) }
+    var selectedAnos by remember(currentFilters) { mutableStateOf(currentFilters.anos) }
+
+    fun <T> toggle(set: Set<T>, item: T): Set<T> {
+        return if (set.contains(item)) set - item else set + item
+    }
 
     Scaffold(
         topBar = {
@@ -56,12 +60,12 @@ fun FilterScreen(
                 actions = {
                     IconButton(
                         onClick = {
-                            selectedBanca = null
-                            selectedModalidade = null
-                            selectedDisciplina = null
-                            selectedAssunto = null
-                            selectedArea = null
-                            selectedAno = null
+                            selectedBancas = emptySet()
+                            selectedModalidades = emptySet()
+                            selectedDisciplinas = emptySet()
+                            selectedAssuntos = emptySet()
+                            selectedAreas = emptySet()
+                            selectedAnos = emptySet()
                             onApplyFilters(FilterCriteria())
                         },
                         modifier = Modifier.semantics {
@@ -88,12 +92,12 @@ fun FilterScreen(
                     OutlinedButton(
                         onClick = {
                             val newCriteria = FilterCriteria(
-                                banca = selectedBanca,
-                                modalidade = selectedModalidade,
-                                disciplina = selectedDisciplina,
-                                assunto = selectedAssunto,
-                                area = selectedArea,
-                                ano = selectedAno
+                                bancas = selectedBancas,
+                                modalidades = selectedModalidades,
+                                disciplinas = selectedDisciplinas,
+                                assuntos = selectedAssuntos,
+                                areas = selectedAreas,
+                                anos = selectedAnos
                             )
                             onApplyFilters(newCriteria)
                         },
@@ -101,7 +105,7 @@ fun FilterScreen(
                             .weight(1f)
                             .height(54.dp)
                             .semantics {
-                                contentDescription = "Aplicar os filtros atuais e permitir adicionar novos filtros"
+                                contentDescription = "Aplicar os filtros selecionados e continuar na tela de filtros"
                             }
                     ) {
                         Icon(Icons.Default.FilterList, contentDescription = null)
@@ -113,12 +117,12 @@ fun FilterScreen(
                     Button(
                         onClick = {
                             val newCriteria = FilterCriteria(
-                                banca = selectedBanca,
-                                modalidade = selectedModalidade,
-                                disciplina = selectedDisciplina,
-                                assunto = selectedAssunto,
-                                area = selectedArea,
-                                ano = selectedAno
+                                bancas = selectedBancas,
+                                modalidades = selectedModalidades,
+                                disciplinas = selectedDisciplinas,
+                                assuntos = selectedAssuntos,
+                                areas = selectedAreas,
+                                anos = selectedAnos
                             )
                             onApplyFilters(newCriteria)
                             onNavigateToQuiz()
@@ -130,7 +134,7 @@ fun FilterScreen(
                             .weight(1.3f)
                             .height(54.dp)
                             .semantics {
-                                contentDescription = "Ir para o caderno e resolver as questões encontradas"
+                                contentDescription = "Ir para o caderno e resolver as questões com os filtros aplicados"
                             }
                     ) {
                         Icon(Icons.Default.PlayArrow, contentDescription = null)
@@ -156,7 +160,7 @@ fun FilterScreen(
                     .padding(horizontal = 16.dp, vertical = 10.dp)
                     .semantics {
                         liveRegion = LiveRegionMode.Polite
-                        contentDescription = "Total de $matchingQuestionsCount questões encontradas com a configuração atual."
+                        contentDescription = "Total de $matchingQuestionsCount questões encontradas com os filtros atuais."
                     },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -172,7 +176,7 @@ fun FilterScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Questões Encontradas",
+                            text = "Questões Disponíveis",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
@@ -209,62 +213,68 @@ fun FilterScreen(
             }
 
             Text(
-                text = "Selecione os critérios desejados e toque em 'Aplicar Filtros' para refinar a busca:",
+                text = "Marque uma ou mais opções em cada categoria (ex: Constitucional + Administrativo) e toque em 'Aplicar Filtros':",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            // Filtro de Bancas
-            FilterChipGroup(
+            // Filtro Multi-Select de Bancas
+            MultiSelectFilterChipGroup(
                 title = "Banca Examinadora",
                 items = filterOptions.bancas,
-                selectedItem = selectedBanca,
-                onItemSelected = { selectedBanca = it },
+                selectedItems = selectedBancas,
+                onToggleItem = { selectedBancas = toggle(selectedBancas, it) },
+                onClearSelection = { selectedBancas = emptySet() },
                 itemLabel = { it }
             )
 
-            // Filtro de Modalidade
-            FilterChipGroup(
-                title = "Modalidade da Prova",
-                items = filterOptions.modalidades,
-                selectedItem = selectedModalidade,
-                onItemSelected = { selectedModalidade = it },
-                itemLabel = { it }
-            )
-
-            // Filtro de Disciplinas
-            FilterChipGroup(
+            // Filtro Multi-Select de Disciplinas
+            MultiSelectFilterChipGroup(
                 title = "Disciplina",
                 items = filterOptions.disciplinas,
-                selectedItem = selectedDisciplina,
-                onItemSelected = { selectedDisciplina = it },
+                selectedItems = selectedDisciplinas,
+                onToggleItem = { selectedDisciplinas = toggle(selectedDisciplinas, it) },
+                onClearSelection = { selectedDisciplinas = emptySet() },
                 itemLabel = { it }
             )
 
-            // Filtro de Assunto / Tópico
-            FilterChipGroup(
+            // Filtro Multi-Select de Assuntos / Tópicos
+            MultiSelectFilterChipGroup(
                 title = "Assunto / Tópico",
                 items = filterOptions.assuntos,
-                selectedItem = selectedAssunto,
-                onItemSelected = { selectedAssunto = it },
+                selectedItems = selectedAssuntos,
+                onToggleItem = { selectedAssuntos = toggle(selectedAssuntos, it) },
+                onClearSelection = { selectedAssuntos = emptySet() },
                 itemLabel = { it }
             )
 
-            // Filtro de Área de Interesse
-            FilterChipGroup(
+            // Filtro Multi-Select de Modalidade
+            MultiSelectFilterChipGroup(
+                title = "Modalidade da Prova",
+                items = filterOptions.modalidades,
+                selectedItems = selectedModalidades,
+                onToggleItem = { selectedModalidades = toggle(selectedModalidades, it) },
+                onClearSelection = { selectedModalidades = emptySet() },
+                itemLabel = { it }
+            )
+
+            // Filtro Multi-Select de Área de Interesse
+            MultiSelectFilterChipGroup(
                 title = "Área de Interesse",
                 items = filterOptions.areas,
-                selectedItem = selectedArea,
-                onItemSelected = { selectedArea = it },
+                selectedItems = selectedAreas,
+                onToggleItem = { selectedAreas = toggle(selectedAreas, it) },
+                onClearSelection = { selectedAreas = emptySet() },
                 itemLabel = { it }
             )
 
-            // Filtro de Ano
-            FilterChipGroup(
+            // Filtro Multi-Select de Anos
+            MultiSelectFilterChipGroup(
                 title = "Ano do Concurso",
                 items = filterOptions.anos,
-                selectedItem = selectedAno,
-                onItemSelected = { selectedAno = it },
+                selectedItems = selectedAnos,
+                onToggleItem = { selectedAnos = toggle(selectedAnos, it) },
+                onClearSelection = { selectedAnos = emptySet() },
                 itemLabel = { it.toString() }
             )
 
@@ -293,23 +303,23 @@ fun FilterScreen(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "A IA cria questões inéditas e atualizadas para o assunto selecionado e as grava diretamente no banco SQLite do app.",
+                        text = "A IA cria questões inéditas e atualizadas de 2026 para as disciplinas selecionadas e grava direto no banco do celular.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onTertiaryContainer
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     FilledTonalButton(
                         onClick = {
-                            val banca = selectedBanca ?: "FGV"
-                            val disc = selectedDisciplina ?: "Direito Constitucional"
-                            val ass = selectedAssunto ?: "Direitos e Garantias Fundamentais"
+                            val banca = selectedBancas.firstOrNull() ?: "FGV"
+                            val disc = selectedDisciplinas.firstOrNull() ?: "Direito Constitucional"
+                            val ass = selectedAssuntos.firstOrNull() ?: "Direitos e Garantias Fundamentais"
                             onGenerateWithAi?.invoke(banca, disc, ass)
                         },
                         enabled = !isGeneratingQuestions,
                         modifier = Modifier
                             .fillMaxWidth()
                             .semantics {
-                                contentDescription = "Gerar questões inéditas com a IA Angélica para o assunto selecionado e adicionar ao banco de dados"
+                                contentDescription = "Gerar questões inéditas com a IA Angélica para os filtros selecionados"
                             }
                     ) {
                         if (isGeneratingQuestions) {
@@ -319,21 +329,8 @@ fun FilterScreen(
                         } else {
                             Icon(Icons.Default.Add, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Gerar e Adicionar Questões Inéditas")
+                            Text("Gerar Novas Questões com IA")
                         }
-                    }
-
-                    updateMessage?.let { msg ->
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = msg,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.semantics {
-                                liveRegion = LiveRegionMode.Polite
-                                contentDescription = msg
-                            }
-                        )
                     }
                 }
             }

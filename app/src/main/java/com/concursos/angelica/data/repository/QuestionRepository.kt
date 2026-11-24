@@ -22,29 +22,35 @@ class QuestionRepository(
         val queryBuilder = StringBuilder("SELECT * FROM questoes WHERE 1=1")
         val args = mutableListOf<Any>()
 
-        filters.banca?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND banca = ? COLLATE NOCASE")
-            args.add(it)
+        if (filters.bancas.isNotEmpty()) {
+            val placeholders = filters.bancas.joinToString(",") { "?" }
+            queryBuilder.append(" AND banca IN ($placeholders) COLLATE NOCASE")
+            args.addAll(filters.bancas)
         }
-        filters.modalidade?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND modalidade = ? COLLATE NOCASE")
-            args.add(it)
+        if (filters.modalidades.isNotEmpty()) {
+            val placeholders = filters.modalidades.joinToString(",") { "?" }
+            queryBuilder.append(" AND modalidade IN ($placeholders) COLLATE NOCASE")
+            args.addAll(filters.modalidades)
         }
-        filters.disciplina?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND disciplina = ? COLLATE NOCASE")
-            args.add(it)
+        if (filters.disciplinas.isNotEmpty()) {
+            val placeholders = filters.disciplinas.joinToString(",") { "?" }
+            queryBuilder.append(" AND disciplina IN ($placeholders) COLLATE NOCASE")
+            args.addAll(filters.disciplinas)
         }
-        filters.assunto?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND topico = ? COLLATE NOCASE")
-            args.add(it)
+        if (filters.assuntos.isNotEmpty()) {
+            val placeholders = filters.assuntos.joinToString(",") { "?" }
+            queryBuilder.append(" AND topico IN ($placeholders) COLLATE NOCASE")
+            args.addAll(filters.assuntos)
         }
-        filters.area?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND area = ? COLLATE NOCASE")
-            args.add(it)
+        if (filters.areas.isNotEmpty()) {
+            val placeholders = filters.areas.joinToString(",") { "?" }
+            queryBuilder.append(" AND area IN ($placeholders) COLLATE NOCASE")
+            args.addAll(filters.areas)
         }
-        filters.ano?.let {
-            queryBuilder.append(" AND ano = ?")
-            args.add(it)
+        if (filters.anos.isNotEmpty()) {
+            val placeholders = filters.anos.joinToString(",") { "?" }
+            queryBuilder.append(" AND ano IN ($placeholders)")
+            args.addAll(filters.anos)
         }
 
         queryBuilder.append(" ORDER BY id ASC LIMIT 100")
@@ -56,29 +62,35 @@ class QuestionRepository(
         val queryBuilder = StringBuilder("SELECT COUNT(*) FROM questoes WHERE 1=1")
         val args = mutableListOf<Any>()
 
-        filters.banca?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND banca = ? COLLATE NOCASE")
-            args.add(it)
+        if (filters.bancas.isNotEmpty()) {
+            val placeholders = filters.bancas.joinToString(",") { "?" }
+            queryBuilder.append(" AND banca IN ($placeholders) COLLATE NOCASE")
+            args.addAll(filters.bancas)
         }
-        filters.modalidade?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND modalidade = ? COLLATE NOCASE")
-            args.add(it)
+        if (filters.modalidades.isNotEmpty()) {
+            val placeholders = filters.modalidades.joinToString(",") { "?" }
+            queryBuilder.append(" AND modalidade IN ($placeholders) COLLATE NOCASE")
+            args.addAll(filters.modalidades)
         }
-        filters.disciplina?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND disciplina = ? COLLATE NOCASE")
-            args.add(it)
+        if (filters.disciplinas.isNotEmpty()) {
+            val placeholders = filters.disciplinas.joinToString(",") { "?" }
+            queryBuilder.append(" AND disciplina IN ($placeholders) COLLATE NOCASE")
+            args.addAll(filters.disciplinas)
         }
-        filters.assunto?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND topico = ? COLLATE NOCASE")
-            args.add(it)
+        if (filters.assuntos.isNotEmpty()) {
+            val placeholders = filters.assuntos.joinToString(",") { "?" }
+            queryBuilder.append(" AND topico IN ($placeholders) COLLATE NOCASE")
+            args.addAll(filters.assuntos)
         }
-        filters.area?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND area = ? COLLATE NOCASE")
-            args.add(it)
+        if (filters.areas.isNotEmpty()) {
+            val placeholders = filters.areas.joinToString(",") { "?" }
+            queryBuilder.append(" AND area IN ($placeholders) COLLATE NOCASE")
+            args.addAll(filters.areas)
         }
-        filters.ano?.let {
-            queryBuilder.append(" AND ano = ?")
-            args.add(it)
+        if (filters.anos.isNotEmpty()) {
+            val placeholders = filters.anos.joinToString(",") { "?" }
+            queryBuilder.append(" AND ano IN ($placeholders)")
+            args.addAll(filters.anos)
         }
 
         val query = SimpleSQLiteQuery(queryBuilder.toString(), args.toTypedArray())
