@@ -55,11 +55,34 @@ fun QuizScreen(
                     .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Nenhuma questão encontrada com os filtros selecionados.\nTente ampliar os critérios na tela anterior.",
-                    style = MaterialTheme.typography.bodyLarge,
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(24.dp)
-                )
+                ) {
+                    Text(
+                        text = "Nenhuma questão encontrada para a combinação de filtros selecionada.",
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Tente alterar os filtros na tela anterior ou toque no botão abaixo para voltar aos filtros.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Button(
+                        onClick = onNavigateBack,
+                        modifier = Modifier.semantics {
+                            contentDescription = "Voltar para ajustar os filtros de questões"
+                        }
+                    ) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Ajustar Filtros")
+                    }
+                }
             }
         }
         return
@@ -146,16 +169,23 @@ fun QuizScreen(
                                 }
                             },
                             enabled = selectedAnswer != null,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
                             modifier = Modifier
                                 .weight(2f)
                                 .height(52.dp)
                                 .semantics {
-                                    contentDescription = "Confirmar e submeter resposta marcada"
+                                    contentDescription = if (selectedAnswer != null) {
+                                        "Responder à questão com a alternativa $selectedAnswer"
+                                    } else {
+                                        "Botão responder desabilitado. Selecione uma alternativa primeiro."
+                                    }
                                 }
                         ) {
                             Icon(Icons.Default.Check, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Confirmar Resposta")
+                            Text("Responder", style = MaterialTheme.typography.titleMedium)
                         }
                     } else {
                         Button(

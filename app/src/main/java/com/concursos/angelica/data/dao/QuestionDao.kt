@@ -18,6 +18,9 @@ interface QuestionDao {
     @RawQuery(observedEntities = [Question::class])
     fun getFilteredQuestions(query: SupportSQLiteQuery): Flow<List<Question>>
 
+    @RawQuery
+    suspend fun getFilteredQuestionCount(query: SupportSQLiteQuery): Int
+
     @Query("SELECT COUNT(*) FROM questoes")
     suspend fun getTotalQuestionCount(): Int
 

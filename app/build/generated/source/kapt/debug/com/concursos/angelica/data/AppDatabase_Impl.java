@@ -38,7 +38,7 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `questoes` (`id` INTEGER NOT NULL, `banca` TEXT NOT NULL, `modalidade` TEXT NOT NULL, `disciplina` TEXT NOT NULL, `topico` TEXT NOT NULL, `area` TEXT NOT NULL, `ano` INTEGER NOT NULL, `enunciado` TEXT NOT NULL, `alternativasJson` TEXT NOT NULL, `respostaCorreta` TEXT NOT NULL, `justificativa` TEXT NOT NULL, PRIMARY KEY(`id`))");

@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
                 val currentIndex by quizViewModel.currentIndex.collectAsState()
                 val isGeneratingQuestions by quizViewModel.isGeneratingQuestions.collectAsState()
                 val updateMessage by quizViewModel.updateMessage.collectAsState()
+                val matchingQuestionsCount by quizViewModel.matchingQuestionsCount.collectAsState()
 
                 val totalRespondidas by performanceViewModel.totalRespondidas.collectAsState()
                 val totalAcertos by performanceViewModel.totalAcertos.collectAsState()
@@ -118,9 +119,10 @@ class MainActivity : ComponentActivity() {
                             FilterScreen(
                                 filterOptions = filterOptions,
                                 currentFilters = currentFilters,
+                                matchingQuestionsCount = matchingQuestionsCount,
                                 isGeneratingQuestions = isGeneratingQuestions,
                                 updateMessage = updateMessage,
-                                onApplyFilters = { quizViewModel.updateFilters(it) },
+                                onApplyFilters = { quizViewModel.applyFilters(it) },
                                 onGenerateWithAi = { banca, disc, ass ->
                                     quizViewModel.generateQuestionsWithAi(banca, disc, ass)
                                 },

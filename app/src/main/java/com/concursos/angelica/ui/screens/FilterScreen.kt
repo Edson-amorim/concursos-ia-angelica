@@ -7,6 +7,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
@@ -28,6 +29,7 @@ import com.concursos.angelica.ui.components.FilterChipGroup
 fun FilterScreen(
     filterOptions: FilterOptions,
     currentFilters: FilterCriteria,
+    matchingQuestionsCount: Int = 0,
     isGeneratingQuestions: Boolean = false,
     updateMessage: String? = null,
     onApplyFilters: (FilterCriteria) -> Unit,
@@ -76,30 +78,67 @@ fun FilterScreen(
                 modifier = Modifier.fillMaxWidth(),
                 tonalElevation = 8.dp
             ) {
-                Button(
-                    onClick = {
-                        val newCriteria = FilterCriteria(
-                            banca = selectedBanca,
-                            modalidade = selectedModalidade,
-                            disciplina = selectedDisciplina,
-                            assunto = selectedAssunto,
-                            area = selectedArea,
-                            ano = selectedAno
-                        )
-                        onApplyFilters(newCriteria)
-                        onNavigateToQuiz()
-                    },
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
-                        .height(56.dp)
-                        .semantics {
-                            contentDescription = "Iniciar simulado com os filtros configurados"
-                        }
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Icon(Icons.Default.PlayArrow, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Iniciar Estudo com Filtros", style = MaterialTheme.typography.titleMedium)
+                    // Botao Aplicar Filtros: aplica e permite continuar na tela adicionando novos
+                    OutlinedButton(
+                        onClick = {
+                            val newCriteria = FilterCriteria(
+                                banca = selectedBanca,
+                                modalidade = selectedModalidade,
+                                disciplina = selectedDisciplina,
+                                assunto = selectedAssunto,
+                                area = selectedArea,
+                                ano = selectedAno
+                            )
+                            onApplyFilters(newCriteria)
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(54.dp)
+                            .semantics {
+                                contentDescription = "Aplicar os filtros atuais e permitir adicionar novos filtros"
+                            }
+                    ) {
+                        Icon(Icons.Default.FilterList, contentDescription = null)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Aplicar Filtros")
+                    }
+
+                    // Botao Resolver Questoes: vai direto para as questoes encontradas
+                    Button(
+                        onClick = {
+                            val newCriteria = FilterCriteria(
+                                banca = selectedBanca,
+                                modalidade = selectedModalidade,
+                                disciplina = selectedDisciplina,
+                                assunto = selectedAssunto,
+                                area = selectedArea,
+                                ano = selectedAno
+                            )
+                            onApplyFilters(newCriteria)
+                            onNavigateToQuiz()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier
+                            .weight(1.3f)
+                            .height(54.dp)
+                            .semantics {
+                                contentDescription = "Ir para o caderno e resolver as questões encontradas"
+                            }
+                    ) {
+                        Icon(Icons.Default.PlayArrow, contentDescription = null)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (matchingQuestionsCount > 0) "Resolver ($matchingQuestionsCount)" else "Resolver Questões"
+                        )
+                    }
                 }
             }
         }
@@ -110,10 +149,69 @@ fun FilterScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
+            // Card de Status dos Filtros e Contador de Questoes Encontradas
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                    .semantics {
+                        liveRegion = LiveRegionMode.Polite
+                        contentDescription = "Total de $matchingQuestionsCount questões encontradas com a configuração atual."
+                    },
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Questões Encontradas",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Text(
+                            text = "$matchingQuestionsCount questões no banco",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+
+            updateMessage?.let { msg ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .semantics {
+                            liveRegion = LiveRegionMode.Polite
+                            contentDescription = msg
+                        },
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = msg,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+            }
+
             Text(
-                text = "Personalize o seu caderno de questões escolhendo os critérios desejados:",
+                text = "Selecione os critérios desejados e toque em 'Aplicar Filtros' para refinar a busca:",
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             // Filtro de Bancas

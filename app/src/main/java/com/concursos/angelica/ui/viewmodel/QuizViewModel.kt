@@ -48,6 +48,25 @@ class QuizViewModel(
     )
     val filterOptions: StateFlow<FilterOptions> = _filterOptions.asStateFlow()
 
+    private val _matchingQuestionsCount = MutableStateFlow(0)
+    val matchingQuestionsCount: StateFlow<Int> = _matchingQuestionsCount.asStateFlow()
+
+    init {
+        loadQuestions()
+        refreshAvailableFilters()
+    }
+
+    fun refreshAvailableFilters(disciplina: String? = null) {
+        viewModelScope.launch {
+            val options = repository.getAvailableFilters(disciplina)
+            if (options.bancas.isNotEmpty()) {
+                _filterOptions.value = options
+            }
+            val count = repository.countQuestions(_currentFilters.value)
+            _matchingQuestionsCount.value = count
+        }
+    }
+
     private val _isGeneratingQuestions = MutableStateFlow(false)
     val isGeneratingQuestions: StateFlow<Boolean> = _isGeneratingQuestions.asStateFlow()
 
@@ -83,9 +102,22 @@ class QuizViewModel(
         }
     }
 
-    fun updateFilters(newFilters: FilterCriteria) {
+    fun applyFilters(newFilters: FilterCriteria) {
         _currentFilters.value = newFilters
         loadQuestions()
+        viewModelScope.launch {
+            val count = repository.countQuestions(newFilters)
+            _matchingQuestionsCount.value = count
+            _updateMessage.value = if (count > 0) {
+                "Filtro aplicado! $count questões encontradas."
+            } else {
+                "Nenhuma questão encontrada com essa combinação de filtros. Tente flexibilizar algum critério."
+            }
+        }
+    }
+
+    fun updateFilters(newFilters: FilterCriteria) {
+        applyFilters(newFilters)
     }
 
     fun loadQuestions() {

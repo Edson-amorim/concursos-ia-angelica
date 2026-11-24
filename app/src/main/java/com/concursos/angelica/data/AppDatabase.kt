@@ -12,7 +12,7 @@ import com.concursos.angelica.data.model.UserAnswer
 
 @Database(
     entities = [Question::class, UserAnswer::class, StudySession::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,10 +29,9 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "concursos_angelica.db"
+                    "concursos_angelica_v2.db"
                 )
-                // Se desejar carregar o banco ja pre-populado do assets:
-                // .createFromAsset("concursos.db")
+                .createFromAsset("concursos.db")
                 .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance

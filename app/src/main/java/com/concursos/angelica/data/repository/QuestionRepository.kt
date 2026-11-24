@@ -22,24 +22,24 @@ class QuestionRepository(
         val queryBuilder = StringBuilder("SELECT * FROM questoes WHERE 1=1")
         val args = mutableListOf<Any>()
 
-        filters.banca?.let {
-            queryBuilder.append(" AND banca = ?")
+        filters.banca?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND banca = ? COLLATE NOCASE")
             args.add(it)
         }
-        filters.modalidade?.let {
-            queryBuilder.append(" AND modalidade = ?")
+        filters.modalidade?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND modalidade = ? COLLATE NOCASE")
             args.add(it)
         }
-        filters.disciplina?.let {
-            queryBuilder.append(" AND disciplina = ?")
+        filters.disciplina?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND disciplina = ? COLLATE NOCASE")
             args.add(it)
         }
-        filters.assunto?.let {
-            queryBuilder.append(" AND topico = ?")
+        filters.assunto?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND topico = ? COLLATE NOCASE")
             args.add(it)
         }
-        filters.area?.let {
-            queryBuilder.append(" AND area = ?")
+        filters.area?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND area = ? COLLATE NOCASE")
             args.add(it)
         }
         filters.ano?.let {
@@ -50,6 +50,43 @@ class QuestionRepository(
         queryBuilder.append(" ORDER BY id ASC LIMIT 100")
         val query = SimpleSQLiteQuery(queryBuilder.toString(), args.toTypedArray())
         return questionDao.getFilteredQuestions(query)
+    }
+
+    suspend fun countQuestions(filters: FilterCriteria): Int {
+        val queryBuilder = StringBuilder("SELECT COUNT(*) FROM questoes WHERE 1=1")
+        val args = mutableListOf<Any>()
+
+        filters.banca?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND banca = ? COLLATE NOCASE")
+            args.add(it)
+        }
+        filters.modalidade?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND modalidade = ? COLLATE NOCASE")
+            args.add(it)
+        }
+        filters.disciplina?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND disciplina = ? COLLATE NOCASE")
+            args.add(it)
+        }
+        filters.assunto?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND topico = ? COLLATE NOCASE")
+            args.add(it)
+        }
+        filters.area?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND area = ? COLLATE NOCASE")
+            args.add(it)
+        }
+        filters.ano?.let {
+            queryBuilder.append(" AND ano = ?")
+            args.add(it)
+        }
+
+        val query = SimpleSQLiteQuery(queryBuilder.toString(), args.toTypedArray())
+        return try {
+            questionDao.getFilteredQuestionCount(query)
+        } catch (e: Exception) {
+            0
+        }
     }
 
     suspend fun saveAnswer(questaoId: Int, respostaEscolhida: String, acertou: Boolean, tempoSegundos: Int) {
