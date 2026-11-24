@@ -85,7 +85,7 @@ class QuestionRepository(
         assunto: String,
         modalidade: String = "Multipla Escolha",
         area: String = "Geral",
-        ano: Int = 2024,
+        ano: Int = 2026,
         quantidade: Int = 3
     ): Result<Int> {
         return try {
@@ -167,9 +167,9 @@ class QuestionRepository(
         val arr = JSONArray()
         for (idx in 1..quantidade) {
             val obj = JSONObject()
-            obj.put("enunciado", "($banca - $ano - Inédita pela IA Angélica) No tocante a $assunto no âmbito de $disciplina, assinale a opção que reflete a jurisprudência dominante e as inovações legislativas recentes:")
+            obj.put("enunciado", "($banca - $ano - Inédita pela IA Angélica) No tocante a $assunto no âmbito de $disciplina, considerando as normas vigentes em 2026 e a jurisprudência dominante, assinale a opção correta:")
             val alts = JSONArray().apply {
-                put(JSONObject().put("letra", "A").put("texto", "A jurisprudência atualizada dos Tribunais Superiores confere eficácia imediata aos preceitos fundamentais de $assunto."))
+                put(JSONObject().put("letra", "A").put("texto", "A jurisprudência atualizada dos Tribunais Superiores confere eficácia imediata aos preceitos fundamentais de $assunto em 2026."))
                 put(JSONObject().put("letra", "B").put("texto", "A incidência das regras relativas a $assunto prescinde de contraditório e ampla defesa em processos disciplinares."))
                 put(JSONObject().put("letra", "C").put("texto", "É vedada de maneira absoluta qualquer interpretação extensiva sobre normas disciplinadoras de $assunto."))
                 put(JSONObject().put("letra", "D").put("texto", "A aplicação de $assunto subordina-se unicamente ao critério de discricionariedade sem balizamento legal."))
@@ -177,7 +177,7 @@ class QuestionRepository(
             }
             obj.put("alternativas", alts)
             obj.put("resposta_correta", "A")
-            obj.put("justificativa", "Gabarito: Letra A. Conforme pacificado nas cortes superiores e nas diretrizes contemporâneas da banca $banca aplicadas em 2024 para $assunto.")
+            obj.put("justificativa", "Gabarito: Letra A. Conforme pacificado nas cortes superiores e nas diretrizes contemporâneas da banca $banca aplicadas em 2026 para $assunto.")
             arr.put(obj)
         }
         return arr

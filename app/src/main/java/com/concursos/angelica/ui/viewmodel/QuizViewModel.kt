@@ -43,7 +43,7 @@ class QuizViewModel(
                 "Sistema Tributario Nacional e Principios"
             ),
             areas = listOf("Policial", "Fiscal", "Tribunais", "Administrativa", "Controle", "Juridica"),
-            anos = (2018..2024).toList().reversed()
+            anos = (2018..2026).toList().reversed()
         )
     )
     val filterOptions: StateFlow<FilterOptions> = _filterOptions.asStateFlow()

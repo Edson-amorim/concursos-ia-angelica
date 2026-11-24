@@ -14,28 +14,29 @@ import urllib.error
 
 BANCAS_PADRAO = ["FGV", "Cebraspe", "FCC", "Vunesp", "Cesgranrio", "Instituto AOCP"]
 
-TEMAS_ATUALIZACAO_2024 = [
-    ("Direito Administrativo", "Nova Lei de Licitacoes (Lei 14.133/2021) e Contratos", "Administrativa"),
-    ("Direito Constitucional", "Reforma Tributaria (EC 132/2023) e Principios Federativos", "Fiscal"),
-    ("Direito Penal", "Crimes Ciberneticos e Lei 14.155/2021", "Policial"),
-    ("Lingua Portuguesa", "Coesao Textual e Ambiguidade nas Provas da FGV", "Tribunais"),
-    ("Informatica", "Seguranca em Ambientes Cloud e Protecao de Dados (LGPD)", "Controle"),
-    ("Raciocinio Logico", "Logica de Primeira Ordem e Diagramas de Venn em Concursos", "Fiscal")
+TEMAS_ATUALIZACAO_2026 = [
+    ("Direito Administrativo", "Nova Lei de Licitacoes (Lei 14.133) e Regimes de IA no Servico Publico em 2026", "Administrativa"),
+    ("Direito Constitucional", "Regulamentacao da Reforma Tributaria e Federalismo Fiscal em 2026", "Fiscal"),
+    ("Direito Tributario", "Instituicao e Fiscalizacao do IBS e CBS no Sistema Tributario 2026", "Fiscal"),
+    ("Direito Penal", "Crimes Digitais Avancados, Fraudes Virtuais e Criptoativos em 2026", "Policial"),
+    ("Lingua Portuguesa", "Semantica Textual, Figuras de Sintaxe e Estilo das Bancas em 2026", "Tribunais"),
+    ("Informatica", "Seguranca Zero Trust, IA Generativa e Criptografia em 2026", "Controle"),
+    ("Raciocinio Logico", "Logica de Argumentacao e Teoria dos Grafos em Concursos de 2026", "Fiscal")
 ]
 
-def gerar_prompt_ia(banca, disciplina, assunto, modalidade, quantidade):
+def gerar_prompt_ia(banca, disciplina, assunto, modalidade, quantidade, ano=2026):
     return f"""
 Voce e um especialista em elaboracao de questoes para concursos publicos no estilo da banca {banca}.
 Formule exatamente {quantidade} questao(oes) inedita(s) sobre:
 - Disciplina: {disciplina}
 - Assunto: {assunto}
 - Modalidade: {modalidade}
-- Ano: 2024
+- Ano: {ano}
 
 Retorne ESTRITAMENTE uma lista JSON valida sem crases de markdown e sem texto antes ou depois:
 [
   {{
-    "enunciado": "Texto da questao...",
+    "enunciado": "Texto da questao contextualizado com normas e jurisprudencia vigentes em {ano}...",
     "alternativas": [
       {{"letra": "A", "texto": "Opcao A"}},
       {{"letra": "B", "texto": "Opcao B"}},
@@ -44,7 +45,7 @@ Retorne ESTRITAMENTE uma lista JSON valida sem crases de markdown e sem texto an
       {{"letra": "E", "texto": "Opcao E"}}
     ],
     "resposta_correta": "A",
-    "justificativa": "Comentario do gabarito fundamentado na jurisprudencia e lei."
+    "justificativa": "Comentario do gabarito fundamentado na jurisprudencia e legislacao de {ano}."
   }}
 ]
 """
@@ -70,12 +71,12 @@ def chamar_gemini(api_key, prompt, model="gemini-2.0-flash"):
         print(f"[!] Erro ao chamar a API Gemini: {e}")
     return None
 
-def gerar_questoes_ia(banca, disciplina, assunto, area, quantidade=3, api_key=None):
+def gerar_questoes_ia(banca, disciplina, assunto, area, quantidade=3, ano=2026, api_key=None):
     modalidade = "Multipla Escolha" if banca != "Cebraspe" else "Certo/Errado"
     
     if api_key:
-        print(f"[+] Solicitando {quantidade} questoes a IA Gemini ({banca} - {assunto})...")
-        prompt = gerar_prompt_ia(banca, disciplina, assunto, modalidade, quantidade)
+        print(f"[+] Solicitando {quantidade} questoes a IA Gemini ({banca} - {assunto} - {ano})...")
+        prompt = gerar_prompt_ia(banca, disciplina, assunto, modalidade, quantidade, ano)
         resposta_ia = chamar_gemini(api_key, prompt)
         if resposta_ia:
             try:
@@ -87,23 +88,23 @@ def gerar_questoes_ia(banca, disciplina, assunto, area, quantidade=3, api_key=No
             except Exception as e:
                 print(f"[!] Falha no parse JSON da IA: {e}")
 
-    # Fallback heuristico com atualizacoes de 2024
-    print(f"[+] Gerando {quantidade} questoes estruturadas pela IA Angélica ({banca} - {assunto})...")
+    # Fallback heuristico com atualizacoes de 2026
+    print(f"[+] Gerando {quantidade} questoes de {ano} estruturadas pela IA Angélica ({banca} - {assunto})...")
     questoes = []
     for i in range(1, quantidade + 1):
         if modalidade == "Certo/Errado":
             q = {
-                "enunciado": f"({banca} - 2024 - Atualização IA) Em relação a {assunto} na disciplina de {disciplina}, o entendimento consolidado nas cortes superiores veda a aplicação retroativa desfavorável mesmo diante de nulidade formal originária.",
+                "enunciado": f"({banca} - {ano} - Atualização IA) Em relação a {assunto} na disciplina de {disciplina}, o entendimento consolidado nas cortes superiores veda a aplicação retroativa desfavorável mesmo diante de nulidade formal originária.",
                 "alternativas": [
                     {"letra": "C", "texto": "Certo"},
                     {"letra": "E", "texto": "Errado"}
                 ],
                 "resposta_correta": "C",
-                "justificativa": f"Gabarito: CERTO. De acordo com a jurisprudência dominante da {banca} em 2024 sobre {assunto}."
+                "justificativa": f"Gabarito: CERTO. De acordo com a jurisprudência dominante da {banca} em {ano} sobre {assunto}."
             }
         else:
             q = {
-                "enunciado": f"({banca} - 2024 - Atualização IA) Considerando as inovações normativas e a jurisprudência recente sobre {assunto} ({disciplina}), assinale a alternativa correta:",
+                "enunciado": f"({banca} - {ano} - Atualização IA) Considerando as inovações normativas e a jurisprudência recente de {ano} sobre {assunto} ({disciplina}), assinale a alternativa correta:",
                 "alternativas": [
                     {"letra": "A", "texto": f"A interpretação sistemática de {assunto} confere prevalência ao princípio da juridicidade e segurança jurídica."},
                     {"letra": "B", "texto": f"A aplicação de {assunto} é incompatível com medidas urgentes de autotutela."},
@@ -112,7 +113,7 @@ def gerar_questoes_ia(banca, disciplina, assunto, area, quantidade=3, api_key=No
                     {"letra": "E", "texto": f"A eficácia plena de {assunto} restringe-se ao âmbito do Poder Executivo federal."}
                 ],
                 "resposta_correta": "A",
-                "justificativa": f"Gabarito: Letra A. Em harmonia com as diretrizes consolidadas da {banca} para {assunto}."
+                "justificativa": f"Gabarito: Letra A. Em harmonia com as diretrizes consolidadas da {banca} em {ano} para {assunto}."
             }
         questoes.append(q)
     return questoes
@@ -142,6 +143,7 @@ def atualizar_banco_dados(novas_questoes_por_tema, db_path="data/concursos.db", 
             modalidade = "Certo/Errado" if len(q["alternativas"]) == 2 else "Multipla Escolha"
             alts_json = json.dumps(q["alternativas"], ensure_ascii=False)
             
+            ano_questao = q.get("ano", 2026)
             cursor.execute("""
                 INSERT INTO questoes (id, banca, modalidade, disciplina, topico, area, ano, enunciado, alternativas_json, resposta_correta, justificativa)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -152,7 +154,7 @@ def atualizar_banco_dados(novas_questoes_por_tema, db_path="data/concursos.db", 
                 disciplina,
                 assunto,
                 area,
-                2024,
+                ano_questao,
                 q["enunciado"],
                 alts_json,
                 q["resposta_correta"],
@@ -166,7 +168,7 @@ def atualizar_banco_dados(novas_questoes_por_tema, db_path="data/concursos.db", 
                 "disciplina": disciplina,
                 "topico": assunto,
                 "area": area,
-                "ano": 2024,
+                "ano": ano_questao,
                 "enunciado": q["enunciado"],
                 "alternativas": q["alternativas"],
                 "resposta_correta": q["resposta_correta"],
@@ -176,10 +178,12 @@ def atualizar_banco_dados(novas_questoes_por_tema, db_path="data/concursos.db", 
     conn.commit()
     cursor.execute("SELECT COUNT(*) FROM questoes")
     total_atual = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM questoes WHERE ano = 2026")
+    total_2026 = cursor.fetchone()[0]
     conn.close()
 
     print(f"[✔] SQLite Atualizado: {len(registros_inseridos)} novas questoes inseridas.")
-    print(f"[ℹ] Novo total no banco de dados: {total_atual} questoes!")
+    print(f"[ℹ] Total de questoes no banco: {total_atual} (Sendo {total_2026} questoes do ano 2026!)")
 
     # Atualizar o arquivo JSON se existir
     if os.path.exists(json_path):
@@ -197,19 +201,22 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Atualizador de Banco de Questoes com IA Angelica")
     parser.add_argument("--banca", default="FGV", help="Banca examinadora (ex: FGV, Cebraspe, FCC)")
     parser.add_argument("--disciplina", default="Direito Administrativo", help="Nome da disciplina")
-    parser.add_argument("--assunto", default="Nova Lei de Licitacoes (Lei 14.133/2021)", help="Assunto especifico")
+    parser.add_argument("--assunto", default="Nova Lei de Licitacoes e Inovacao em 2026", help="Assunto especifico")
     parser.add_argument("--area", default="Administrativa", help="Area do concurso")
+    parser.add_argument("--ano", type=int, default=2026, help="Ano do concurso (padrao: 2026)")
     parser.add_argument("--quantidade", type=int, default=5, help="Quantidade de questoes a gerar")
     parser.add_argument("--api-key", default=os.getenv("GEMINI_API_KEY"), help="Chave da API Gemini (opcional)")
-    parser.add_argument("--todos-temas-2024", action="store_true", help="Atualizar com todos os temas de 2024")
+    parser.add_argument("--todos-temas-2026", action="store_true", help="Atualizar com todos os temas de 2026")
 
     args = parser.parse_args()
 
     novas = []
-    if args.todos_temas_2024:
-        for disc, ass, ar in TEMAS_ATUALIZACAO_2024:
+    if args.todos_temas_2026:
+        for disc, ass, ar in TEMAS_ATUALIZACAO_2026:
             for b in ["FGV", "Cebraspe", "FCC"]:
-                qs = gerar_questoes_ia(b, disc, ass, ar, quantidade=args.quantidade, api_key=args.api_key)
+                qs = gerar_questoes_ia(b, disc, ass, ar, quantidade=args.quantidade, ano=args.ano, api_key=args.api_key)
+                for q in qs:
+                    q["ano"] = args.ano
                 novas.append({
                     "banca": b,
                     "disciplina": disc,
@@ -218,7 +225,9 @@ if __name__ == "__main__":
                     "questoes": qs
                 })
     else:
-        qs = gerar_questoes_ia(args.banca, args.disciplina, args.assunto, args.area, quantidade=args.quantidade, api_key=args.api_key)
+        qs = gerar_questoes_ia(args.banca, args.disciplina, args.assunto, args.area, quantidade=args.quantidade, ano=args.ano, api_key=args.api_key)
+        for q in qs:
+            q["ano"] = args.ano
         novas.append({
             "banca": args.banca,
             "disciplina": args.disciplina,

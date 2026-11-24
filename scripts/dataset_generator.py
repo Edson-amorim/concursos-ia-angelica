@@ -7,7 +7,7 @@ Compatível com filtros:
 - Disciplinas: Direito Constitucional, Direito Administrativo, Lingua Portuguesa,
                Raciocinio Logico, Informatica, Direito Penal, Direito Tributario, etc.
 - Area de Interesse: Policial, Fiscal, Tribunais, Administrativa, Controle, Juridica
-- Anos: 2018 a 2024
+- Anos: 2018 a 2026
 """
 
 import json
@@ -205,7 +205,11 @@ def gerar_dataset_concursos(total_questoes=10000, output_json="data/questions_10
             modalidade = "Multipla Escolha"
             
         area = random.choice(AREAS)
-        ano = random.randint(2018, 2024)
+        # Inclui questoes recentes de 2018 a 2026, com enfase em 2026
+        ano = random.choices(
+            [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026],
+            weights=[1, 1, 1, 1, 2, 2, 3, 4, 6]
+        )[0]
 
         dados_questao = gerar_enunciado_e_alternativas(disciplina, topico, banca, modalidade, ano)
 
