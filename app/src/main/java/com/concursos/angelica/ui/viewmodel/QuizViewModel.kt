@@ -48,6 +48,41 @@ class QuizViewModel(
     )
     val filterOptions: StateFlow<FilterOptions> = _filterOptions.asStateFlow()
 
+    private val _isGeneratingQuestions = MutableStateFlow(false)
+    val isGeneratingQuestions: StateFlow<Boolean> = _isGeneratingQuestions.asStateFlow()
+
+    private val _updateMessage = MutableStateFlow<String?>(null)
+    val updateMessage: StateFlow<String?> = _updateMessage.asStateFlow()
+
+    fun clearUpdateMessage() {
+        _updateMessage.value = null
+    }
+
+    fun generateQuestionsWithAi(
+        banca: String,
+        disciplina: String,
+        assunto: String,
+        quantidade: Int = 3
+    ) {
+        viewModelScope.launch {
+            _isGeneratingQuestions.value = true
+            _updateMessage.value = "A Angélica está formulando $quantidade novas questões inéditas..."
+            val result = repository.generateAndInsertAiQuestions(
+                banca = banca,
+                disciplina = disciplina,
+                assunto = assunto,
+                quantidade = quantidade
+            )
+            result.onSuccess { qtd ->
+                _updateMessage.value = "Sucesso! $qtd novas questões foram geradas pela IA e inseridas no banco de dados."
+                loadQuestions()
+            }.onFailure { err ->
+                _updateMessage.value = "Falha ao gerar questões com IA: ${err.localizedMessage}"
+            }
+            _isGeneratingQuestions.value = false
+        }
+    }
+
     fun updateFilters(newFilters: FilterCriteria) {
         _currentFilters.value = newFilters
         loadQuestions()

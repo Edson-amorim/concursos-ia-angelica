@@ -3,6 +3,7 @@
 Aplicativo Android nativo em **Kotlin + Jetpack Compose** projetado para preparação em concursos públicos com:
 - **Banco de Dados de 10.000 questões** completas e comentadas.
 - **Filtros avançados**: Bancas, Modalidade, Disciplinas, **Assuntos/Tópicos**, Área de Interesse e Ano.
+- **Atualização Contínua com IA**: Mecanismo para a IA Angélica gerar questões inéditas com gabarito justificado e gravar diretamente no banco de dados SQLite / Room.
 - **100% Compatível com Leitores de Tela (TalkBack)** e normas de acessibilidade digital.
 - **Mentora de Inteligência Artificial "Angélica"**: avalia o desempenho, mapeia pontos fracos e recomenda estudos e cronogramas estratégicos.
 - **Banco de Dados de Progresso Local**: histórico de respostas, tempo gasto por questão, taxa de aproveitamento e gráficos.
@@ -107,7 +108,31 @@ C:\concursos-ia-angelica\
 
 ---
 
-## 🚀 5. Como Executar e Gerar Novos Dados
+## 🤖 5. Como a IA Atualiza o Banco de Questões
+
+Foram implementados dois mecanismos complementares para manter o banco sempre atualizado com novas questões:
+
+### A) Atualização Direta pelo App Android (On-Demand)
+Na tela de **Filtros**, o estudante encontra o bloco:
+- **"Atualizar Banco com IA Angélica"**: Basta escolher a banca, disciplina e assunto desejado e tocar em *"Gerar e Adicionar Questões Inéditas"*.
+- A IA formula questões inéditas no formato das bancas (com enunciados e comentários doutrinários/jurisprudenciais de 2024).
+- As questões são gravadas imediatamente no **Room / SQLite local** do celular via `questionDao.insertAll()`.
+- O TalkBack anuncia por voz em tempo real o progresso e o total de questões adicionadas.
+
+### B) Atualização por Linha de Comando / Automação (`scripts/ai_question_updater.py`)
+Para injetar grandes volumes de novas questões de uma vez usando a API do Google Gemini ou heurística avançada:
+
+```bash
+# Atualizar 10 novas questoes da FGV sobre a Nova Lei de Licitacoes
+python scripts/ai_question_updater.py --banca FGV --disciplina "Direito Administrativo" --assunto "Nova Lei de Licitacoes (Lei 14.133/2021)" --quantidade 10
+
+# Atualizar com temas recentes de 2024 (Reforma Tributaria, Crimes Ciberneticos, etc.)
+python scripts/ai_question_updater.py --todos-temas-2024 --quantidade 5
+```
+
+---
+
+## 🚀 6. Como Executar e Gerar Novos Dados
 
 ### Executar a Geração do Banco de Dados (Python):
 ```bash

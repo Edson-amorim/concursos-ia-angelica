@@ -39,10 +39,8 @@ class MainActivity : ComponentActivity() {
 
         // Inicializacao do Banco de Dados Room e Repositorios
         val database = AppDatabase.getInstance(applicationContext)
-        val questionRepository = QuestionRepository(database.questionDao(), database.userProgressDao())
-        
-        // Inicializacao da IA Angelica (Gemini)
         val geminiClient = GeminiClient(apiKey = "") // Pode ser configurada via buildConfig ou Settings
+        val questionRepository = QuestionRepository(database.questionDao(), database.userProgressDao(), geminiClient)
         val mentorRepository = AngelicaMentorRepository(database.userProgressDao(), geminiClient)
 
         val quizViewModel = QuizViewModel(questionRepository)
@@ -57,6 +55,8 @@ class MainActivity : ComponentActivity() {
                 val filterOptions by quizViewModel.filterOptions.collectAsState()
                 val questions by quizViewModel.questions.collectAsState()
                 val currentIndex by quizViewModel.currentIndex.collectAsState()
+                val isGeneratingQuestions by quizViewModel.isGeneratingQuestions.collectAsState()
+                val updateMessage by quizViewModel.updateMessage.collectAsState()
 
                 val totalRespondidas by performanceViewModel.totalRespondidas.collectAsState()
                 val totalAcertos by performanceViewModel.totalAcertos.collectAsState()
@@ -118,7 +118,12 @@ class MainActivity : ComponentActivity() {
                             FilterScreen(
                                 filterOptions = filterOptions,
                                 currentFilters = currentFilters,
+                                isGeneratingQuestions = isGeneratingQuestions,
+                                updateMessage = updateMessage,
                                 onApplyFilters = { quizViewModel.updateFilters(it) },
+                                onGenerateWithAi = { banca, disc, ass ->
+                                    quizViewModel.generateQuestionsWithAi(banca, disc, ass)
+                                },
                                 onNavigateToQuiz = { currentDestination = AppDestination.SIMULADO },
                                 modifier = Modifier.padding(innerPadding)
                             )

@@ -94,8 +94,7 @@ public final class UserProgressDao_Impl implements UserProgressDao {
   }
 
   @Override
-  public Object insertAnswer(final UserAnswer userAnswer,
-      final Continuation<? super Long> $completion) {
+  public Object insertAnswer(final UserAnswer userAnswer, final Continuation<? super Long> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Long>() {
       @Override
       @NonNull
@@ -109,12 +108,11 @@ public final class UserProgressDao_Impl implements UserProgressDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
-  public Object insertSession(final StudySession session,
-      final Continuation<? super Long> $completion) {
+  public Object insertSession(final StudySession session, final Continuation<? super Long> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Long>() {
       @Override
       @NonNull
@@ -128,7 +126,7 @@ public final class UserProgressDao_Impl implements UserProgressDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
@@ -202,7 +200,7 @@ public final class UserProgressDao_Impl implements UserProgressDao {
   }
 
   @Override
-  public Object getAverageTimeSeconds(final Continuation<? super Double> $completion) {
+  public Object getAverageTimeSeconds(final Continuation<? super Double> arg0) {
     final String _sql = "SELECT AVG(tempoSegundos) FROM respostas_usuario";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
@@ -230,7 +228,7 @@ public final class UserProgressDao_Impl implements UserProgressDao {
           _statement.release();
         }
       }
-    }, $completion);
+    }, arg0);
   }
 
   @Override
@@ -285,7 +283,7 @@ public final class UserProgressDao_Impl implements UserProgressDao {
 
   @Override
   public Object getStatsByTopico(final String disciplina,
-      final Continuation<? super List<TopicoStat>> $completion) {
+      final Continuation<? super List<TopicoStat>> arg1) {
     final String _sql = "\n"
             + "        SELECT q.topico as topico, \n"
             + "               COUNT(r.id) as total, \n"
@@ -334,7 +332,7 @@ public final class UserProgressDao_Impl implements UserProgressDao {
           _statement.release();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
@@ -397,7 +395,7 @@ public final class UserProgressDao_Impl implements UserProgressDao {
 
   @Override
   public Object getRecentAnswers(final int limit,
-      final Continuation<? super List<UserAnswer>> $completion) {
+      final Continuation<? super List<UserAnswer>> arg1) {
     final String _sql = "SELECT * FROM respostas_usuario ORDER BY timestampResposta DESC LIMIT ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
@@ -445,7 +443,7 @@ public final class UserProgressDao_Impl implements UserProgressDao {
           _statement.release();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @NonNull

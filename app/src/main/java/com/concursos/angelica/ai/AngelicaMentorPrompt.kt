@@ -64,4 +64,36 @@ Por favor:
 3. Diga qual dispositivo legal, súmula ou conceito eu devo revisar para nunca mais errar isso.
 """
     }
+
+    fun buildQuestionGenerationPrompt(
+        banca: String,
+        disciplina: String,
+        assunto: String,
+        modalidade: String,
+        quantidade: Int
+    ): String {
+        return """
+Você deve atuar como uma banca examinadora de concurso público ($banca) e formular exatamente $quantidade questão(ões) inédita(s) de alto nível sobre:
+- Disciplina: $disciplina
+- Assunto/Tópico: $assunto
+- Modalidade: $modalidade
+- Ano: 2024
+
+ATENÇÃO: Responda ESTRITAMENTE em formato JSON puro, sem crases de markdown e sem texto explicativo antes ou depois, como uma lista de objetos:
+[
+  {
+    "enunciado": "Texto completo do enunciado contextualizado no estilo da banca $banca...",
+    "alternativas": [
+      {"letra": "A", "texto": "Opção A..."},
+      {"letra": "B", "texto": "Opção B..."},
+      {"letra": "C", "texto": "Opção C..."},
+      {"letra": "D", "texto": "Opção D..."},
+      {"letra": "E", "texto": "Opção E..."}
+    ],
+    "resposta_correta": "A",
+    "justificativa": "Comentário detalhado da resposta fundamentado na legislação e jurisprudência dominante."
+  }
+]
+"""
+    }
 }

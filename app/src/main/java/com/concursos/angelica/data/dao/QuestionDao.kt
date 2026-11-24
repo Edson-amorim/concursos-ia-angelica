@@ -21,6 +21,9 @@ interface QuestionDao {
     @Query("SELECT COUNT(*) FROM questoes")
     suspend fun getTotalQuestionCount(): Int
 
+    @Query("SELECT COALESCE(MAX(id), 0) FROM questoes")
+    suspend fun getMaxQuestionId(): Int
+
     @Query("SELECT DISTINCT banca FROM questoes ORDER BY banca ASC")
     suspend fun getAllBancas(): List<String>
 
