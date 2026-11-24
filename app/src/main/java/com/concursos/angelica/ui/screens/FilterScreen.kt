@@ -27,6 +27,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.concursos.angelica.data.model.FilterCatalog
 import com.concursos.angelica.data.model.FilterCriteria
 import com.concursos.angelica.data.repository.FilterOptions
 import com.concursos.angelica.ui.components.MultiSelectFilterChipGroup
@@ -55,6 +56,15 @@ fun FilterScreen(
 
     fun <T> toggle(set: Set<T>, item: T): Set<T> {
         return if (set.contains(item)) set - item else set + item
+    }
+
+    // Assuntos estritamente dependentes das disciplinas selecionadas
+    val availableAssuntos = remember(selectedDisciplinas, filterOptions.assuntos) {
+        if (selectedDisciplinas.isEmpty()) {
+            filterOptions.assuntos
+        } else {
+            FilterCatalog.getAssuntosForDisciplinas(selectedDisciplinas)
+        }
     }
 
     fun buildCurrentCriteria(
@@ -147,7 +157,7 @@ fun FilterScreen(
                             .weight(1.4f)
                             .height(54.dp)
                             .semantics {
-                                contentDescription = "Ir para o caderno de questões resolver com os filtros atuais"
+                                contentDescription = "Ir para o simulado resolver questões"
                             }
                     ) {
                         Icon(Icons.Default.PlayArrow, contentDescription = null)
@@ -178,7 +188,7 @@ fun FilterScreen(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer
                 ),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(14.dp)
             ) {
                 Row(
                     modifier = Modifier
@@ -238,12 +248,12 @@ fun FilterScreen(
             }
 
             Text(
-                text = "Selecione as opções desejadas em cada caixa. Os filtros atualizam instantaneamente e você também pode tocar em 'Aplicar' em cada caixa:",
+                text = "Marque suas opções nas caixas abaixo. Cada caixa possui seu próprio botão 'Aplicar' e os filtros também sincronizam em tempo real:",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            // Caixa 1: Bancas Examinadoras (com botão Aplicar próprio)
+            // Caixa 1: Bancas Examinadoras
             MultiSelectFilterChipGroup(
                 title = "Banca Examinadora",
                 icon = Icons.Default.School,
@@ -267,16 +277,26 @@ fun FilterScreen(
                 itemLabel = { it }
             )
 
-            // Caixa 2: Disciplinas (com botão Aplicar próprio)
+            // Caixa 2: Disciplinas (Ao mudar, atualiza imediatamente os assuntos pertinentes)
             MultiSelectFilterChipGroup(
                 title = "Disciplina",
                 icon = Icons.Default.MenuBook,
                 items = filterOptions.disciplinas,
                 selectedItems = selectedDisciplinas,
                 onToggleItem = { item ->
-                    val newSet = toggle(selectedDisciplinas, item)
-                    selectedDisciplinas = newSet
-                    val criteria = buildCurrentCriteria(disciplinas = newSet)
+                    val newDisciplinas = toggle(selectedDisciplinas, item)
+                    selectedDisciplinas = newDisciplinas
+
+                    // Higieniza assuntos selecionados para remover assuntos de outras matérias
+                    val allowedAssuntos = FilterCatalog.getAssuntosForDisciplinas(newDisciplinas)
+                    val newAssuntos = if (newDisciplinas.isNotEmpty()) {
+                        selectedAssuntos.filter { allowedAssuntos.contains(it) }.toSet()
+                    } else {
+                        selectedAssuntos
+                    }
+                    selectedAssuntos = newAssuntos
+
+                    val criteria = buildCurrentCriteria(disciplinas = newDisciplinas, assuntos = newAssuntos)
                     onCriteriaChanged(criteria)
                 },
                 onClearSelection = {
@@ -291,23 +311,23 @@ fun FilterScreen(
                 itemLabel = { it }
             )
 
-            // Caixa 3: Assuntos / Tópicos vinculados estritamente à disciplina selecionada
+            // Caixa 3: Assuntos / Tópicos (Estritamente dependente da disciplina escolhida)
             val emptyAssuntosMsg = if (selectedDisciplinas.isEmpty()) {
-                "Selecione uma ou mais disciplinas acima para visualizar os tópicos correspondentes (ou deixe todas ativas)."
+                "Exibindo todos os tópicos gerais. Selecione uma disciplina na caixa acima para ver estritamente os assuntos dela."
             } else {
-                "Nenhum assunto específico listado para as disciplinas selecionadas."
+                "Nenhum tópico cadastrado para a disciplina selecionada."
             }
 
             MultiSelectFilterChipGroup(
                 title = if (selectedDisciplinas.isNotEmpty()) {
-                    "Assuntos (${selectedDisciplinas.size} disc. ativa${if (selectedDisciplinas.size > 1) "s" else ""})"
+                    "Assuntos (${selectedDisciplinas.joinToString(", ")})"
                 } else {
-                    "Assuntos / Tópicos"
+                    "Assuntos / Tópicos da Matéria"
                 },
                 icon = Icons.Default.Bookmark,
-                items = filterOptions.assuntos,
+                items = availableAssuntos,
                 selectedItems = selectedAssuntos,
-                emptyMessage = emptyAssuntosMsg,
+                emptyMessage = if (availableAssuntos.isEmpty()) emptyAssuntosMsg else null,
                 onToggleItem = { item ->
                     val newSet = toggle(selectedAssuntos, item)
                     selectedAssuntos = newSet
@@ -326,7 +346,7 @@ fun FilterScreen(
                 itemLabel = { it }
             )
 
-            // Caixa 4: Modalidade da Prova (com botão Aplicar próprio)
+            // Caixa 4: Modalidade da Prova
             MultiSelectFilterChipGroup(
                 title = "Modalidade da Prova",
                 icon = Icons.Default.FormatListBulleted,
@@ -350,7 +370,7 @@ fun FilterScreen(
                 itemLabel = { it }
             )
 
-            // Caixa 5: Área de Concurso (com botão Aplicar próprio)
+            // Caixa 5: Área de Concurso
             MultiSelectFilterChipGroup(
                 title = "Área de Interesse",
                 icon = Icons.Default.AccountBalance,
@@ -374,7 +394,7 @@ fun FilterScreen(
                 itemLabel = { it }
             )
 
-            // Caixa 6: Ano do Concurso (com botão Aplicar próprio)
+            // Caixa 6: Ano do Concurso
             MultiSelectFilterChipGroup(
                 title = "Ano do Concurso",
                 icon = Icons.Default.DateRange,
@@ -398,7 +418,7 @@ fun FilterScreen(
                 itemLabel = { it.toString() }
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             // =========================================================================
             // PAINEL DE AÇÃO PRINCIPAL ACIMA DA ANGÉLICA (Requisito explícito do usuário)
@@ -411,7 +431,8 @@ fun FilterScreen(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -419,18 +440,18 @@ fun FilterScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "Confirmação dos Filtros",
-                        style = MaterialTheme.typography.titleMedium,
+                        text = "Pronto para Estudar?",
+                        style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.semantics { heading() }
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Total encontrado com as seleções atuais: $matchingQuestionsCount questões.",
+                        text = "$matchingQuestionsCount questões prontas para resolver no caderno atual.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -446,9 +467,9 @@ fun FilterScreen(
                             ),
                             modifier = Modifier
                                 .weight(1f)
-                                .height(50.dp)
+                                .height(52.dp)
                                 .semantics {
-                                    contentDescription = "Aplicar todas as configurações de filtros selecionadas"
+                                    contentDescription = "Aplicar todos os filtros selecionados"
                                 }
                         ) {
                             Icon(Icons.Default.DoneAll, contentDescription = null)
@@ -463,21 +484,21 @@ fun FilterScreen(
                                 onNavigateToQuiz()
                             },
                             modifier = Modifier
-                                .weight(1.1f)
-                                .height(50.dp)
+                                .weight(1.2f)
+                                .height(52.dp)
                                 .semantics {
                                     contentDescription = "Ir direto para resolver as questões filtradas"
                                 }
                         ) {
                             Icon(Icons.Default.PlayArrow, contentDescription = null)
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Resolver ($matchingQuestionsCount)")
+                            Text("Resolver Questões")
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // Card da Mentora IA Angélica (Fica logo abaixo do botão aplicar, conforme solicitado)
             Card(
@@ -538,7 +559,7 @@ fun FilterScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(28.dp))
         }
     }
 }

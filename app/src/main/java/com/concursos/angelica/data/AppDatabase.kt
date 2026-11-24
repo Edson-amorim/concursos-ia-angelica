@@ -12,7 +12,7 @@ import com.concursos.angelica.data.model.UserAnswer
 
 @Database(
     entities = [Question::class, UserAnswer::class, StudySession::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,7 +29,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "concursos_angelica_v3.db"
+                    "concursos_angelica_v4.db"
                 )
                 .createFromAsset("concursos.db")
                 .fallbackToDestructiveMigration()

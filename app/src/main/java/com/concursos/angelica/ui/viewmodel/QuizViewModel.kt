@@ -2,6 +2,7 @@ package com.concursos.angelica.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.concursos.angelica.data.model.FilterCatalog
 import com.concursos.angelica.data.model.FilterCriteria
 import com.concursos.angelica.data.model.Question
 import com.concursos.angelica.data.repository.FilterOptions
@@ -121,7 +122,7 @@ class QuizViewModel(
         viewModelScope.launch {
             try {
                 // Atualiza assuntos disponíveis dependendo das disciplinas selecionadas
-                val validTopicos = repository.getTopicosForDisciplinas(newFilters.disciplinas)
+                val validTopicos = FilterCatalog.getAssuntosForDisciplinas(newFilters.disciplinas)
                 _filterOptions.value = _filterOptions.value.copy(assuntos = validTopicos)
 
                 // Remove assuntos que não pertencem às disciplinas selecionadas
@@ -148,7 +149,7 @@ class QuizViewModel(
     fun applyFilters(newFilters: FilterCriteria, categoryFeedback: String? = null) {
         viewModelScope.launch {
             try {
-                val validTopicos = repository.getTopicosForDisciplinas(newFilters.disciplinas)
+                val validTopicos = FilterCatalog.getAssuntosForDisciplinas(newFilters.disciplinas)
                 _filterOptions.value = _filterOptions.value.copy(assuntos = validTopicos)
 
                 val sanitizedAssuntos = if (newFilters.disciplinas.isNotEmpty()) {

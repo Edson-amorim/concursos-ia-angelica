@@ -92,7 +92,10 @@ class MainActivity : ComponentActivity() {
                             )
                             NavigationBarItem(
                                 selected = currentDestination == AppDestination.SIMULADO,
-                                onClick = { currentDestination = AppDestination.SIMULADO },
+                                onClick = {
+                                    quizViewModel.loadQuestions()
+                                    currentDestination = AppDestination.SIMULADO
+                                },
                                 icon = { Icon(Icons.Default.PlayArrow, contentDescription = null) },
                                 label = { Text(AppDestination.SIMULADO.title) },
                                 modifier = Modifier.semantics {
