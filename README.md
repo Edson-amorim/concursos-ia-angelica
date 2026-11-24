@@ -133,7 +133,29 @@ python scripts/ai_question_updater.py --todos-temas-2024 --quantidade 5
 
 ---
 
-## 🚀 6. Como Executar e Gerar Novos Dados
+## 🧪 7. Testes Automatizados (Garantia de Qualidade & CI)
+
+O projeto conta com uma suíte de testes automatizados completa dividida em duas frentes:
+
+### A) Testes de Integração e Validação do Banco SQLite (Python)
+Valida a integridade das 10.210 questões, hash do Room, schema das tabelas, consistência do JSON de alternativas e consultas com múltiplos filtros:
+
+```bash
+python scripts/test_database_integrity.py
+```
+
+### B) Testes Unitários de Regra de Negócio (Kotlin + JUnit)
+Testa os modelos de dados, combinação de filtros, parse de alternativas e validação de gabaritos:
+
+```bash
+.\gradlew.bat testDebugUnitTest
+```
+
+O relatório HTML de execução é gerado em: `app/build/reports/tests/testDebugUnitTest/index.html`.
+
+---
+
+## 🚀 8. Como Executar e Gerar Novos Dados
 
 ### Executar a Geração do Banco de Dados (Python):
 ```bash
