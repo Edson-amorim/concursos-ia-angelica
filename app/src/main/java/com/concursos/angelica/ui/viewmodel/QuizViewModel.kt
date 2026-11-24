@@ -32,6 +32,16 @@ class QuizViewModel(
                 "Direito Constitucional", "Direito Administrativo", "Lingua Portuguesa",
                 "Raciocinio Logico", "Informatica", "Direito Penal", "Direito Tributario"
             ),
+            assuntos = listOf(
+                "Direitos e Garantias Fundamentais", "Organizacao do Estado e dos Poderes",
+                "Controle de Constitucionalidade", "Principios da Administracao Publica (LIMPE)",
+                "Atos Administrativos: Requisitos e Atributos", "Nova Lei de Licitacoes (Lei 14.133/2021)",
+                "Interpretacao e Compreensao de Textos", "Crase: Regras Gerais e Casos Proibitivos",
+                "Sintaxe de Concordancia Verbal e Nominal", "Proposicoes Logicas e Conectivos",
+                "Tabelas-Verdade e Equivalencias Logicas", "Seguranca da Informacao e Principios (CID)",
+                "Redes de Computadores e Protocolos de Internet", "Teoria Geral do Delito",
+                "Sistema Tributario Nacional e Principios"
+            ),
             areas = listOf("Policial", "Fiscal", "Tribunais", "Administrativa", "Controle", "Juridica"),
             anos = (2018..2024).toList().reversed()
         )

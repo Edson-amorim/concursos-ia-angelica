@@ -27,6 +27,12 @@ interface QuestionDao {
     @Query("SELECT DISTINCT disciplina FROM questoes ORDER BY disciplina ASC")
     suspend fun getAllDisciplinas(): List<String>
 
+    @Query("SELECT DISTINCT topico FROM questoes ORDER BY topico ASC")
+    suspend fun getAllTopicos(): List<String>
+
+    @Query("SELECT DISTINCT topico FROM questoes WHERE disciplina = :disciplina ORDER BY topico ASC")
+    suspend fun getTopicosByDisciplina(disciplina: String): List<String>
+
     @Query("SELECT DISTINCT area FROM questoes ORDER BY area ASC")
     suspend fun getAllAreas(): List<String>
 

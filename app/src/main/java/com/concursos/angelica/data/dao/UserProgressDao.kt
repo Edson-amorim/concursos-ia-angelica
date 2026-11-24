@@ -14,6 +14,12 @@ data class DisciplinaStat(
     val acertos: Int
 )
 
+data class TopicoStat(
+    val topico: String,
+    val total: Int,
+    val acertos: Int
+)
+
 @Dao
 interface UserProgressDao {
 
@@ -51,7 +57,7 @@ interface UserProgressDao {
         WHERE q.disciplina = :disciplina
         GROUP BY q.topico
     """)
-    suspend fun getStatsByTopico(disciplina: String): List<DisciplinaStat>
+    suspend fun getStatsByTopico(disciplina: String): List<TopicoStat>
 
     @Query("SELECT * FROM sessao_estudos ORDER BY timestampCriacao DESC LIMIT 10")
     fun getRecentSessions(): Flow<List<StudySession>>

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.concursos.angelica.data.dao.DisciplinaStat
 import com.concursos.angelica.data.dao.UserProgressDao
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 class PerformanceViewModel(
     private val userProgressDao: UserProgressDao
@@ -23,7 +24,7 @@ class PerformanceViewModel(
     val tempoMedio: StateFlow<Double> = _tempoMedio.asStateFlow()
 
     init {
-        viewModelScope.launchWhenStarted {
+        viewModelScope.launch {
             _tempoMedio.value = userProgressDao.getAverageTimeSeconds() ?: 0.0
         }
     }

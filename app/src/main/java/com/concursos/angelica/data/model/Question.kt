@@ -28,6 +28,7 @@ data class FilterCriteria(
     val banca: String? = null,
     val modalidade: String? = null,
     val disciplina: String? = null,
+    val assunto: String? = null,
     val area: String? = null,
     val ano: Int? = null
 )

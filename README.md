@@ -2,10 +2,11 @@
 
 Aplicativo Android nativo em **Kotlin + Jetpack Compose** projetado para preparação em concursos públicos com:
 - **Banco de Dados de 10.000 questões** completas e comentadas.
-- **Filtros avançados**: Bancas, Modalidade, Disciplinas, Área de Interesse e Ano.
+- **Filtros avançados**: Bancas, Modalidade, Disciplinas, **Assuntos/Tópicos**, Área de Interesse e Ano.
 - **100% Compatível com Leitores de Tela (TalkBack)** e normas de acessibilidade digital.
 - **Mentora de Inteligência Artificial "Angélica"**: avalia o desempenho, mapeia pontos fracos e recomenda estudos e cronogramas estratégicos.
 - **Banco de Dados de Progresso Local**: histórico de respostas, tempo gasto por questão, taxa de aproveitamento e gráficos.
+- **APK Pronto para Instalação**: binário compilado disponível diretamente na raiz do projeto (`concursos-angelica.apk`).
 
 ---
 

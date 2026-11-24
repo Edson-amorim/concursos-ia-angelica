@@ -29,6 +29,10 @@ class QuestionRepository(
             queryBuilder.append(" AND disciplina = ?")
             args.add(it)
         }
+        filters.assunto?.let {
+            queryBuilder.append(" AND topico = ?")
+            args.add(it)
+        }
         filters.area?.let {
             queryBuilder.append(" AND area = ?")
             args.add(it)
@@ -53,11 +57,18 @@ class QuestionRepository(
         userProgressDao.insertAnswer(answer)
     }
 
-    suspend fun getAvailableFilters(): FilterOptions {
+    suspend fun getAvailableFilters(disciplinaSelecionada: String? = null): FilterOptions {
+        val topicos = if (disciplinaSelecionada != null) {
+            questionDao.getTopicosByDisciplina(disciplinaSelecionada)
+        } else {
+            questionDao.getAllTopicos()
+        }
+
         return FilterOptions(
             bancas = questionDao.getAllBancas(),
             modalidades = questionDao.getAllModalidades(),
             disciplinas = questionDao.getAllDisciplinas(),
+            assuntos = topicos,
             areas = questionDao.getAllAreas(),
             anos = questionDao.getAllAnos()
         )
@@ -68,6 +79,7 @@ data class FilterOptions(
     val bancas: List<String>,
     val modalidades: List<String>,
     val disciplinas: List<String>,
+    val assuntos: List<String>,
     val areas: List<String>,
     val anos: List<Int>
 )

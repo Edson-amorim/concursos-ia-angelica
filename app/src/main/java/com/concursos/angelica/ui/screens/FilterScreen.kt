@@ -29,6 +29,7 @@ fun FilterScreen(
     var selectedBanca by remember(currentFilters) { mutableStateOf(currentFilters.banca) }
     var selectedModalidade by remember(currentFilters) { mutableStateOf(currentFilters.modalidade) }
     var selectedDisciplina by remember(currentFilters) { mutableStateOf(currentFilters.disciplina) }
+    var selectedAssunto by remember(currentFilters) { mutableStateOf(currentFilters.assunto) }
     var selectedArea by remember(currentFilters) { mutableStateOf(currentFilters.area) }
     var selectedAno by remember(currentFilters) { mutableStateOf(currentFilters.ano) }
 
@@ -47,6 +48,7 @@ fun FilterScreen(
                             selectedBanca = null
                             selectedModalidade = null
                             selectedDisciplina = null
+                            selectedAssunto = null
                             selectedArea = null
                             selectedAno = null
                             onApplyFilters(FilterCriteria())
@@ -71,6 +73,7 @@ fun FilterScreen(
                             banca = selectedBanca,
                             modalidade = selectedModalidade,
                             disciplina = selectedDisciplina,
+                            assunto = selectedAssunto,
                             area = selectedArea,
                             ano = selectedAno
                         )
@@ -128,6 +131,15 @@ fun FilterScreen(
                 items = filterOptions.disciplinas,
                 selectedItem = selectedDisciplina,
                 onItemSelected = { selectedDisciplina = it },
+                itemLabel = { it }
+            )
+
+            // Filtro de Assunto / Tópico
+            FilterChipGroup(
+                title = "Assunto / Tópico",
+                items = filterOptions.assuntos,
+                selectedItem = selectedAssunto,
+                onItemSelected = { selectedAssunto = it },
                 itemLabel = { it }
             )
 
