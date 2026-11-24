@@ -29,13 +29,51 @@ import org.json.JSONArray
 fun QuizScreen(
     questions: List<Question>,
     currentIndex: Int,
+    isLoading: Boolean = false,
     onAnswerSubmitted: (questaoId: Int, resposta: String, acertou: Boolean, tempoSegundos: Int) -> Unit,
     onNextQuestion: () -> Unit,
     onPreviousQuestion: () -> Unit,
     onConsultAngelica: (question: Question, selectedAnswer: String) -> Unit,
     onNavigateBack: () -> Unit,
+    onResetFilters: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    if (isLoading) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Caderno de Questões") },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Voltar aos filtros")
+                        }
+                    }
+                )
+            }
+        ) { padding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Carregando questões do banco...",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
+        return
+    }
+
     if (questions.isEmpty()) {
         Scaffold(
             topBar = {
@@ -60,27 +98,42 @@ fun QuizScreen(
                     modifier = Modifier.padding(24.dp)
                 ) {
                     Text(
-                        text = "Nenhuma questão encontrada para a combinação de filtros selecionada.",
+                        text = "Nenhuma questão encontrada para os filtros selecionados.",
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Tente alterar os filtros na tela anterior ou toque no botão abaixo para voltar aos filtros.",
+                        text = "Experimente flexibilizar os filtros ou clique no botão abaixo para ver todas as questões do banco.",
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(20.dp))
-                    Button(
-                        onClick = onNavigateBack,
-                        modifier = Modifier.semantics {
-                            contentDescription = "Voltar para ajustar os filtros de questões"
-                        }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Ajustar Filtros")
+                        OutlinedButton(
+                            onClick = onNavigateBack,
+                            modifier = Modifier.semantics {
+                                contentDescription = "Voltar para a tela de filtros para ajustar"
+                            }
+                        ) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = null)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Ajustar Filtros")
+                        }
+
+                        if (onResetFilters != null) {
+                            Button(
+                                onClick = onResetFilters,
+                                modifier = Modifier.semantics {
+                                    contentDescription = "Limpar todos os filtros e mostrar todas as questões"
+                                }
+                            ) {
+                                Text("Ver Todas as Questões")
+                            }
+                        }
                     }
                 }
             }

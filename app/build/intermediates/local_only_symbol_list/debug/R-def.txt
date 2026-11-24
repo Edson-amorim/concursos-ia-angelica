@@ -1,7 +1,0 @@
-R_DEF: Internal format may change without notice
-local
-string app_name
-string desc_angelica
-string desc_filtro
-string desc_progresso
-string desc_simulado

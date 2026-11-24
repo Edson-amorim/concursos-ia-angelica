@@ -111,9 +111,9 @@ class QuestionRepository(
         userProgressDao.insertAnswer(answer)
     }
 
-    suspend fun getAvailableFilters(disciplinaSelecionada: String? = null): FilterOptions {
-        val topicos = if (disciplinaSelecionada != null) {
-            questionDao.getTopicosByDisciplina(disciplinaSelecionada)
+    suspend fun getAvailableFilters(disciplinasSelecionadas: Set<String> = emptySet()): FilterOptions {
+        val topicos = if (disciplinasSelecionadas.isNotEmpty()) {
+            questionDao.getTopicosByDisciplinas(disciplinasSelecionadas.toList())
         } else {
             questionDao.getAllTopicos()
         }
@@ -126,6 +126,14 @@ class QuestionRepository(
             areas = questionDao.getAllAreas(),
             anos = questionDao.getAllAnos()
         )
+    }
+
+    suspend fun getTopicosForDisciplinas(disciplinas: Set<String>): List<String> {
+        return if (disciplinas.isNotEmpty()) {
+            questionDao.getTopicosByDisciplinas(disciplinas.toList())
+        } else {
+            questionDao.getAllTopicos()
+        }
     }
 
     suspend fun generateAndInsertAiQuestions(

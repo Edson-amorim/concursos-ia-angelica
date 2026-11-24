@@ -39,6 +39,9 @@ interface QuestionDao {
     @Query("SELECT DISTINCT topico FROM questoes WHERE disciplina = :disciplina ORDER BY topico ASC")
     suspend fun getTopicosByDisciplina(disciplina: String): List<String>
 
+    @Query("SELECT DISTINCT topico FROM questoes WHERE disciplina IN (:disciplinas) ORDER BY topico ASC")
+    suspend fun getTopicosByDisciplinas(disciplinas: List<String>): List<String>
+
     @Query("SELECT DISTINCT area FROM questoes ORDER BY area ASC")
     suspend fun getAllAreas(): List<String>
 

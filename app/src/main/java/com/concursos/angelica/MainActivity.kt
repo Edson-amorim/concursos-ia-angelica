@@ -59,6 +59,7 @@ class MainActivity : ComponentActivity() {
                 val currentFilters by quizViewModel.currentFilters.collectAsState()
                 val filterOptions by quizViewModel.filterOptions.collectAsState()
                 val questions by quizViewModel.questions.collectAsState()
+                val isLoadingQuestions by quizViewModel.isLoadingQuestions.collectAsState()
                 val currentIndex by quizViewModel.currentIndex.collectAsState()
                 val isGeneratingQuestions by quizViewModel.isGeneratingQuestions.collectAsState()
                 val updateMessage by quizViewModel.updateMessage.collectAsState()
@@ -127,7 +128,11 @@ class MainActivity : ComponentActivity() {
                                 matchingQuestionsCount = matchingQuestionsCount,
                                 isGeneratingQuestions = isGeneratingQuestions,
                                 updateMessage = updateMessage,
-                                onApplyFilters = { quizViewModel.applyFilters(it) },
+                                onCriteriaChanged = { quizViewModel.onCriteriaChanged(it) },
+                                onApplyFilters = { criteria, category ->
+                                    quizViewModel.applyFilters(criteria, category)
+                                },
+                                onResetFilters = { quizViewModel.resetFilters() },
                                 onGenerateWithAi = { banca, disc, ass ->
                                     quizViewModel.generateQuestionsWithAi(banca, disc, ass)
                                 },
@@ -139,6 +144,7 @@ class MainActivity : ComponentActivity() {
                             QuizScreen(
                                 questions = questions,
                                 currentIndex = currentIndex,
+                                isLoading = isLoadingQuestions,
                                 onAnswerSubmitted = { id, ans, isCorrect, tempo ->
                                     quizViewModel.submitAnswer(id, ans, isCorrect, tempo)
                                 },
@@ -155,6 +161,7 @@ class MainActivity : ComponentActivity() {
                                     currentDestination = AppDestination.MENTORA
                                 },
                                 onNavigateBack = { currentDestination = AppDestination.FILTROS },
+                                onResetFilters = { quizViewModel.resetFilters() },
                                 modifier = Modifier.padding(innerPadding)
                             )
                         }

@@ -6,6 +6,7 @@ import com.concursos.angelica.data.model.FilterCriteria
 import com.concursos.angelica.data.model.Question
 import com.concursos.angelica.data.repository.FilterOptions
 import com.concursos.angelica.data.repository.QuestionRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,8 +22,13 @@ class QuizViewModel(
     private val _questions = MutableStateFlow<List<Question>>(emptyList())
     val questions: StateFlow<List<Question>> = _questions.asStateFlow()
 
+    private val _isLoadingQuestions = MutableStateFlow(false)
+    val isLoadingQuestions: StateFlow<Boolean> = _isLoadingQuestions.asStateFlow()
+
     private val _currentIndex = MutableStateFlow(0)
     val currentIndex: StateFlow<Int> = _currentIndex.asStateFlow()
+
+    private var questionsJob: Job? = null
 
     private val _filterOptions = MutableStateFlow(
         FilterOptions(
@@ -56,10 +62,10 @@ class QuizViewModel(
         refreshAvailableFilters()
     }
 
-    fun refreshAvailableFilters(disciplina: String? = null) {
+    fun refreshAvailableFilters() {
         viewModelScope.launch {
             try {
-                val options = repository.getAvailableFilters(disciplina)
+                val options = repository.getAvailableFilters(_currentFilters.value.disciplinas)
                 if (options.bancas.isNotEmpty()) {
                     _filterOptions.value = options
                 }
@@ -111,15 +117,56 @@ class QuizViewModel(
         }
     }
 
-    fun applyFilters(newFilters: FilterCriteria) {
-        _currentFilters.value = newFilters
-        loadQuestions()
+    fun onCriteriaChanged(newFilters: FilterCriteria) {
         viewModelScope.launch {
             try {
-                val count = repository.countQuestions(newFilters)
+                // Atualiza assuntos disponíveis dependendo das disciplinas selecionadas
+                val validTopicos = repository.getTopicosForDisciplinas(newFilters.disciplinas)
+                _filterOptions.value = _filterOptions.value.copy(assuntos = validTopicos)
+
+                // Remove assuntos que não pertencem às disciplinas selecionadas
+                val sanitizedAssuntos = if (newFilters.disciplinas.isNotEmpty()) {
+                    newFilters.assuntos.filter { validTopicos.contains(it) }.toSet()
+                } else {
+                    newFilters.assuntos
+                }
+
+                val sanitizedFilters = newFilters.copy(assuntos = sanitizedAssuntos)
+                _currentFilters.value = sanitizedFilters
+
+                val count = repository.countQuestions(sanitizedFilters)
                 _matchingQuestionsCount.value = count
-                _updateMessage.value = if (count > 0) {
-                    "Filtro aplicado! $count questões encontradas."
+
+                // Carrega as questões imediatamente para que ao ir para o simulado já esteja pronto!
+                loadQuestions()
+            } catch (e: Exception) {
+                // Falha silenciosa segura
+            }
+        }
+    }
+
+    fun applyFilters(newFilters: FilterCriteria, categoryFeedback: String? = null) {
+        viewModelScope.launch {
+            try {
+                val validTopicos = repository.getTopicosForDisciplinas(newFilters.disciplinas)
+                _filterOptions.value = _filterOptions.value.copy(assuntos = validTopicos)
+
+                val sanitizedAssuntos = if (newFilters.disciplinas.isNotEmpty()) {
+                    newFilters.assuntos.filter { validTopicos.contains(it) }.toSet()
+                } else {
+                    newFilters.assuntos
+                }
+
+                val sanitizedFilters = newFilters.copy(assuntos = sanitizedAssuntos)
+                _currentFilters.value = sanitizedFilters
+                loadQuestions()
+
+                val count = repository.countQuestions(sanitizedFilters)
+                _matchingQuestionsCount.value = count
+                _updateMessage.value = if (categoryFeedback != null) {
+                    "$categoryFeedback aplicado! $count questões encontradas."
+                } else if (count > 0) {
+                    "Filtros aplicados! $count questões encontradas."
                 } else {
                     "Nenhuma questão encontrada com essa combinação de filtros. Tente flexibilizar algum critério."
                 }
@@ -129,19 +176,27 @@ class QuizViewModel(
         }
     }
 
+    fun resetFilters() {
+        applyFilters(FilterCriteria(), categoryFeedback = "Todos os filtros foram limpos")
+    }
+
     fun updateFilters(newFilters: FilterCriteria) {
         applyFilters(newFilters)
     }
 
     fun loadQuestions() {
-        viewModelScope.launch {
+        questionsJob?.cancel()
+        questionsJob = viewModelScope.launch {
+            _isLoadingQuestions.value = true
             try {
                 repository.getQuestions(_currentFilters.value).collect { list ->
                     _questions.value = list
                     _currentIndex.value = 0
+                    _isLoadingQuestions.value = false
                 }
             } catch (e: Exception) {
                 _questions.value = emptyList()
+                _isLoadingQuestions.value = false
             }
         }
     }
